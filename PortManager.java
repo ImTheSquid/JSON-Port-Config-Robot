@@ -3,15 +3,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Set;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONException;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public final class PortManager {
     public class PortConfiguration {
@@ -54,10 +47,10 @@ public final class PortManager {
         path.resolve(filePath);
 
         // Attempt to load file
-        Object jsonData;
+        JSONObject jsonData;
         try {
             File f = path.toFile();
-            jsonData = new JSONParser().parse(new FileReader(f));
+            jsonData = new JSONObject(new FileReader(f));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             return false;
