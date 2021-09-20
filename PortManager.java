@@ -1,13 +1,16 @@
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+package frc.robot;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Arrays;
+
+import org.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONArray;
 
 public final class PortManager {
-    public class PortConfiguration {
+    public static class PortConfiguration {
         private String name;
         private int[] ports;
 
@@ -22,6 +25,11 @@ public final class PortManager {
 
         public int[] ports() {
             return ports;
+        }
+
+        @Override
+        public String toString() {
+            return "Port Configuration: NAME:" + name + " PORTS:" + Arrays.toString(ports); 
         }
     }
 
@@ -40,28 +48,28 @@ public final class PortManager {
     // Returns success
     static boolean loadMap(String filePath, boolean prependUserDirectory) {
         // Generate path to load
-        Path path = Paths.get("");
+        Path path = Paths.get("/");
         if (prependUserDirectory) {
-            path.resolve(System.getProperty("user.dir"));
+            path = path.resolve(System.getProperty("user.home"));
         }
-        path.resolve(filePath);
+        path = path.resolve(filePath);
+
+        System.out.println("Attempting to load map from " + path.toFile());
 
         // Attempt to load file
         JSONObject jsonData;
         try {
-            File f = path.toFile();
-            jsonData = new JSONObject(new FileReader(f));
-        } catch (IOException | ParseException e) {
+            jsonData = new JSONObject(Files.readString(path));
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
 
         // Load port data into objects
         try {
-            JSONObject jsonMain = (JSONObject) jsonData;
             // Iterate over keys to get all objects
-            for (String portName: jsonMain.keySet()) {
-                JSONObject portData = (JSONObject) jsonMain.get(portName);
+            for (String portName: jsonData.keySet()) {
+                JSONObject portData = (JSONObject) jsonData.get(portName);
                 // Load port values and create object
                 JSONArray portList = portData.getJSONArray("ports");
                 int[] portArray = new int[portList.length()];
